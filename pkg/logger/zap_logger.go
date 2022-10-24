@@ -1,21 +1,30 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
+// SPDX-License-Identifier: MIT
 /*
- * Copyright (C) 2018-2022 SCANOSS.COM
+ * Copyright (c) 2022, SCANOSS
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 
-// Package logger handles logging for everything in the dependency system
-// It uses zap to achieve this
+// Package logger simplifies the setup of a zap logger.
+// It provides helpers for creating Dev & Prod loggers, including setting a logging level.
+// These loggers are stored in package level global variables to aid calling them from other packages.
+// There is also support for Atomic Levels, which enables the modification of a logging level while the system is running.
 package logger
 
 import (
@@ -28,9 +37,9 @@ import (
 	"os"
 )
 
-var L *zap.Logger
-var S *zap.SugaredLogger
-var atomicLevel = zap.NewAtomicLevel()
+var L *zap.Logger                      // Global Logger
+var S *zap.SugaredLogger               // Global Sugared Logger
+var atomicLevel = zap.NewAtomicLevel() // Atomic logging level
 
 // NewDevLogger creates a new Development logger
 func NewDevLogger() error {
@@ -109,6 +118,7 @@ func NewLoggerFromFile(filename string) error {
 	if err := json.Unmarshal(byteArray, &cfg); err != nil {
 		return fmt.Errorf("failed to parse logging config json file '%v': %v", filename, err)
 	}
+	atomicLevel = cfg.Level // Assign the atomic level parsed from the config file
 	L, err = cfg.Build()
 	if err != nil {
 		return fmt.Errorf("failed to load prod logger: %v", err)

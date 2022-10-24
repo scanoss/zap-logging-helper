@@ -9,9 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Upcoming changes...
 
-
-## [0.0.1] - ?
+## [0.0.2] - 2022-10-21
 ### Added
-- ?
+- License headers and documentation
 
-[0.0.1: https://github.com/scanoss/zap-logging-helper/compare/v0.0.0...v0.0.1
+## [0.0.1] - 2022-10-20
+### Added
+- Initialisation functions for zap
+- Atomic logging level setting
+- gRPC interceptor to inject logging context and request/response id
+
+[0.0.1]: https://github.com/scanoss/zap-logging-helper/compare/v0.0.0...v0.0.1
+[0.0.2]: https://github.com/scanoss/zap-logging-helper/compare/v0.0.1...v0.0.2
