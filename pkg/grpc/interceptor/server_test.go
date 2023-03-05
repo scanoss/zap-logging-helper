@@ -24,9 +24,85 @@
 package interceptor
 
 import (
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/peer"
+	"net"
 	"testing"
 )
 
-func TestZapDevSugar(t *testing.T) {
+var (
+	unaryInfo = &grpc.UnaryServerInfo{
+		FullMethod: "TestService.UnaryMethod",
+	}
+	streamInfo = &grpc.StreamServerInfo{
+		FullMethod:     "TestService.StreamMethod",
+		IsServerStream: true,
+	}
+	unaryHandler = func(ctx context.Context, req interface{}) (interface{}, error) {
+		return "output", nil
+	}
+	streamHandler = func(srv interface{}, stream grpc.ServerStream) error {
+		return nil
+	}
+)
 
+type testServerStream struct {
+	grpc.ServerStream
+	ctx context.Context
+}
+
+func (ss *testServerStream) Context() context.Context {
+	return ss.ctx
+}
+
+func TestCtxPropUnaryServerNoReqID(t *testing.T) {
+	ctx := context.Background()
+	addr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8080")
+	if err != nil {
+		t.Fatalf("failed to parse TCP Addr: %v", err)
+	}
+	pd := &peer.Peer{Addr: addr}
+	ctx = peer.NewContext(ctx, pd)
+	md := metadata.Pairs("x-real-ip", "222.25.118.1")
+	ctx = metadata.NewIncomingContext(ctx, md)
+	_, err = ContextPropagationUnaryServerInterceptor()(ctx, "xyz", unaryInfo, unaryHandler)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestCtxPropUnaryServerReqID(t *testing.T) {
+	ctx := context.Background()
+	addr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8080")
+	if err != nil {
+		t.Fatalf("failed to parse TCP Addr: %v", err)
+	}
+	pd := &peer.Peer{Addr: addr}
+	ctx = peer.NewContext(ctx, pd)
+	md := metadata.Pairs("x-request-id", "444444")
+	ctx = metadata.NewIncomingContext(ctx, md)
+	_, err = ContextPropagationUnaryServerInterceptor()(ctx, "xyz", unaryInfo, unaryHandler)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestCtxPropStreamServerNoReqID(t *testing.T) {
+	ctx := context.Background()
+	addr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:8080")
+	if err != nil {
+		t.Fatalf("failed to parse TCP Addr: %v", err)
+	}
+	pd := &peer.Peer{Addr: addr}
+	ctx = peer.NewContext(ctx, pd)
+	md := metadata.Pairs("x-real-ip", "222.25.118.1")
+	ctx = metadata.NewIncomingContext(ctx, md)
+	testService := struct{}{}
+	testStream := &testServerStream{ctx: ctx}
+	err = ContextPropagationStreamServerInterceptor()(testService, testStream, streamInfo, streamHandler)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 }

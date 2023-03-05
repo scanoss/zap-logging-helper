@@ -38,7 +38,7 @@ import (
 const RequestIDKey = "x-request-id"
 const ResponseIDKey = "x-response-id"
 
-// ContextPropagationUnaryServerInterceptor intercepts the incoming request and checks for a Request ID.
+// ContextPropagationUnaryServerInterceptor intercepts the incoming unary request and checks for a Request ID.
 // If none exists, create it, add it to the logging dataset and set the Response ID
 // It also adds the Request ID to any new outgoing (downstream) requests
 func ContextPropagationUnaryServerInterceptor() grpc.UnaryServerInterceptor {
@@ -48,28 +48,67 @@ func ContextPropagationUnaryServerInterceptor() grpc.UnaryServerInterceptor {
 		info *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler,
 	) (interface{}, error) {
-		if md, ok := metadata.FromIncomingContext(ctx); ok {
-			s := ctxzap.Extract(ctx).Sugar()
-			var reqId string
-			xrId := md[RequestIDKey] // Check if we have a request ID. If not create one
-			if len(xrId) > 0 {
-				reqId = strings.Trim(xrId[0], " ")
-			}
-			if len(reqId) == 0 { // No Request ID, create one
-				reqId = uuid.New().String()
-				md.Set(RequestIDKey, reqId)
-				s.Debugf("Creating Request ID: %v", reqId)
-				ctx = metadata.NewIncomingContext(ctx, md) // Add the Request ID to the incoming metadata
-			}
-			ctxzap.AddFields(ctx, zap.String(RequestIDKey, reqId)) // Add Request ID to the logging
-			ctx = context.WithValue(ctx, RequestIDKey, reqId)      // Add Request ID to current context
-			ctx = metadata.NewOutgoingContext(ctx, md)             // Add the incoming metadata to any outgoing requests
-
-			header := metadata.New(map[string]string{ResponseIDKey: reqId}) // Set the Response ID
-			if err := grpc.SendHeader(ctx, header); err != nil {
-				s.Debugf("Warning: Unable to set response header '%v' %v: %v", ResponseIDKey, reqId, err)
-			}
-		}
+		ctx = getSetRequestID(ctx)
 		return handler(ctx, req)
 	}
+}
+
+// ContextPropagationStreamServerInterceptor intercepts the incoming stream request and checks for a Request ID.
+// If none exists, create it, add it to the logging dataset and set the Response ID
+// It also adds the Request ID to any new outgoing (downstream) requests
+func ContextPropagationStreamServerInterceptor() grpc.StreamServerInterceptor {
+	return func(
+		srv interface{},
+		stream grpc.ServerStream,
+		info *grpc.StreamServerInfo,
+		handler grpc.StreamHandler,
+	) (err error) {
+		ctx := stream.Context()
+		ctx = getSetRequestID(ctx)
+		stream = newServerStreamWithContext(stream, ctx)
+		return handler(srv, stream)
+	}
+}
+
+type serverStreamWithContext struct {
+	grpc.ServerStream
+	ctx context.Context
+}
+
+// newServerStreamWithContext returns a new Server Stream with context
+func newServerStreamWithContext(stream grpc.ServerStream, ctx context.Context) grpc.ServerStream {
+	return serverStreamWithContext{
+		ServerStream: stream,
+		ctx:          ctx,
+	}
+}
+
+// getSetRequestID looks for a request ID from incoming metadata
+// If none exists, create it, add it to the logging dataset and set the Response ID
+// It also adds the Request ID to any new outgoing (downstream) requests
+func getSetRequestID(ctx context.Context) context.Context {
+
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		s := ctxzap.Extract(ctx).Sugar()
+		var reqId string
+		xrId := md[RequestIDKey] // Check if we have a request ID. If not create one
+		if len(xrId) > 0 {
+			reqId = strings.Trim(xrId[0], " ")
+		}
+		if len(reqId) == 0 { // No Request ID, create one
+			reqId = uuid.New().String()
+			md.Set(RequestIDKey, reqId)
+			s.Debugf("Creating Request ID: %v", reqId)
+			ctx = metadata.NewIncomingContext(ctx, md) // Add the Request ID to the incoming metadata
+		}
+		ctxzap.AddFields(ctx, zap.String(RequestIDKey, reqId)) // Add Request ID to the logging
+		ctx = context.WithValue(ctx, RequestIDKey, reqId)      // Add Request ID to current context
+		ctx = metadata.NewOutgoingContext(ctx, md)             // Add the incoming metadata to any outgoing requests
+
+		header := metadata.New(map[string]string{ResponseIDKey: reqId}) // Set the Response ID
+		if err := grpc.SendHeader(ctx, header); err != nil {
+			s.Debugf("Warning: Unable to set response header '%v' %v: %v", ResponseIDKey, reqId, err)
+		}
+	}
+	return ctx
 }

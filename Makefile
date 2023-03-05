@@ -9,6 +9,18 @@ help: ## This help
 
 .DEFAULT_GOAL := help
 
-test:  ## Run package tests
-	@echo "Running package tests..."
-	cd pkg/logger && go test -v
+clean_testcache:  ## Expire all Go test caches
+	@echo "Cleaning test caches..."
+	go clean -testcache ./...
+
+unit_test:  ## Run all unit tests in the pkg folder
+	@echo "Running unit test framework..."
+	go test -v ./pkg/...
+
+test:  unit_test ## Run package tests
+
+lint_local: ## Run local instance of linting across the code base
+	golangci-lint run ./...
+
+lint_docker: ## Run docker instance of linting across the code base
+	docker run --rm -v $(pwd):/app -v ~/.cache/golangci-lint/v1.50.1:/root/.cache -w /app golangci/golangci-lint:v1.50.1 golangci-lint run ./...
