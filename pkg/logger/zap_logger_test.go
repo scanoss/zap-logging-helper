@@ -25,9 +25,10 @@ package logger
 
 import (
 	"fmt"
+	"testing"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"testing"
 )
 
 func TestZapDevSugar(t *testing.T) {
@@ -81,7 +82,7 @@ func TestZapLocalLog(t *testing.T) {
 	logMsg(zapcore.InfoLevel, "Local Info message")
 	logMsg(zapcore.WarnLevel, "Local Warning message")
 	logMsg(zapcore.ErrorLevel, "Local Error message")
-	logMsg(zapcore.PanicLevel, "Local Panic message")
+	logMsg(zapcore.InvalidLevel, "Local Invalid message")
 }
 
 func TestZapSetLevel(t *testing.T) {
@@ -118,7 +119,6 @@ func TestZapHttpLogSet(t *testing.T) {
 }
 
 func TestZapFromLogFile(t *testing.T) {
-
 	err := NewSugaredLoggerFromFile("")
 	if err == nil {
 		t.Fatalf("expected to get an error from unsupplied config file")
@@ -138,4 +138,35 @@ func TestZapFromLogFile(t *testing.T) {
 		t.Fatalf("an error '%s' was not expected when opening a json logger", err)
 	}
 	S.Info("Successful JSON logger config loaded")
+}
+
+func TestSetupAppLogger(t *testing.T) {
+	err := SetupAppLogger("dev", "", true)
+	if err != nil {
+		t.Errorf("Got unexpected error: %v", err)
+	}
+	err = SetupAppLogger("prod", "", true)
+	if err != nil {
+		t.Errorf("Got unexpected error: %v", err)
+	}
+	err = SetupAppLogger("dev", "./tests/zap_config.json", true)
+	if err != nil {
+		t.Errorf("Got unexpected error: %v", err)
+	}
+	err = SetupAppLogger("prod", "./tests/zap_config.json", true)
+	if err != nil {
+		t.Errorf("Got unexpected error: %v", err)
+	}
+	err = SetupAppLogger("prod", "./tests/does-not-exist.json", true)
+	if err == nil {
+		t.Fatalf("expected to get an error from non-existant config file")
+	}
+}
+
+func TestSetupAppDynamicLogging(t *testing.T) {
+	err := SetupAppLogger("dev", "", true)
+	if err != nil {
+		t.Errorf("Got unexpected error: %v", err)
+	}
+	SetupAppDynamicLogging(":0", true)
 }
