@@ -24,12 +24,15 @@
 package interceptor
 
 import (
+	"net"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
-	"net"
-	"testing"
 )
 
 var (
@@ -55,6 +58,17 @@ type testServerStream struct {
 
 func (ss *testServerStream) Context() context.Context {
 	return ss.ctx
+}
+
+func TestGetSetRequestID(t *testing.T) {
+	ctx := context.Background()
+	md := metadata.Pairs("x-real-ip", "222.25.118.1")
+	ctx = metadata.NewIncomingContext(ctx, md)
+	newCtx := getSetRequestID(ctx)
+	requestID := RequestIDFromContext(ctx) // old context should be empty
+	assert.Falsef(t, len(requestID) > 0, "Request ID should be empty")
+	requestID = RequestIDFromContext(newCtx) // new context should have a request ID
+	assert.True(t, len(requestID) > 0, "Request ID should not be empty")
 }
 
 func TestCtxPropUnaryServerNoReqID(t *testing.T) {
