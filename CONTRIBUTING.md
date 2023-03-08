@@ -10,7 +10,7 @@ A welcome addition to the project is an integration with a new source code repos
 If you are submitting a bug, please tell us:
 
 - Version of SCANOSS you are using
-- Version of Python, Go, Java, etc. you are using
+- Version of Go, etc. you are using
 - how to reproduce the bug.
 
 ### Pull requests
@@ -25,4 +25,6 @@ When reviewing your pull request, we will follow a checklist similar to this one
 
 ### Licensing
 
-The SCANOSS Platform is released under the GPL-2.0 license. If you wish to contribute, you must accept that you are aware of the license under which the project is released, and that your contribution will be released under the same license. Sometimes the GPL-2.0 license is incompatible with other licenses chosen by other projects. Therefore, you must accept that your contribution can also be released under the MIT license, which is the license we choose for those situations. Unless you expressly request otherwise, we may use your name, email address, username or URL for your attribution notice text. The submission of your contribution implies that you agree with these licensing terms.
+The SCANOSS Platform is released under the GPL-2.0 license. This helper package is released under MIT.
+
+If you wish to contribute, you must accept that you are aware of the license under which the project is released, and that your contribution will be released under the same license. Sometimes the GPL-2.0 license is incompatible with other licenses chosen by other projects. Therefore, you must accept that your contribution can also be released under the MIT license, which is the license we choose for those situations. Unless you expressly request otherwise, we may use your name, email address, username or URL for your attribution notice text. The submission of your contribution implies that you agree with these licensing terms.

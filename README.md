@@ -9,7 +9,6 @@ This repository is made up of the following components:
 * gRPC interceptor to add request/response IDs to logging
 
 ## Usage
-
 ### Zap Logger
 When leveraging a zap logger in an application, it can be problematic to instantiate an instance and maintain access to this.
 The zap `logger` package simplifies this by providing two global variables which give access to both the standard (faster) `Logger` and the more format friendly `Sugared Logger`.

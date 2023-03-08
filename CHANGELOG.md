@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Upcoming changes...
 
+## [0.1.0] - 2023-03-08
+### Added
+- Added support for Streaming interceptor
+### Fixed
+- Fixed issues as a result of `golangci` linting
+
 ## [0.0.2] - 2022-10-21
 ### Added
 - License headers and documentation
