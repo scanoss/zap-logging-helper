@@ -44,20 +44,23 @@ var S *zap.SugaredLogger               // Global Sugared Logger
 var atomicLevel = zap.NewAtomicLevel() // Atomic logging level
 
 // NewDevLogger creates a new Development logger.
-func NewDevLogger() error {
-	return NewDevLoggerLevel(zapcore.DebugLevel)
+func NewDevLogger(outputs ...string) error {
+	return NewDevLoggerLevel(zapcore.DebugLevel, outputs...)
 }
 
 // NewProdLogger creates a new Production logger.
-func NewProdLogger() error {
-	return NewProdLoggerLevel(zapcore.InfoLevel)
+func NewProdLogger(outputs ...string) error {
+	return NewProdLoggerLevel(zapcore.InfoLevel, outputs...)
 }
 
 // NewDevLoggerLevel creates a Dev logger at the specified logging level.
-func NewDevLoggerLevel(lvl zapcore.Level) error {
+func NewDevLoggerLevel(lvl zapcore.Level, outputs ...string) error {
 	atomicLevel = zap.NewAtomicLevelAt(lvl)
 	pc := zap.NewDevelopmentConfig()
 	pc.Level = atomicLevel
+	if len(outputs) > 0 {
+		pc.OutputPaths = outputs
+	}
 	var err error
 	L, err = pc.Build()
 	if err != nil {
@@ -67,10 +70,13 @@ func NewDevLoggerLevel(lvl zapcore.Level) error {
 }
 
 // NewProdLoggerLevel creates a Prod logger at the specified logging level.
-func NewProdLoggerLevel(lvl zapcore.Level) error {
+func NewProdLoggerLevel(lvl zapcore.Level, outputs ...string) error {
 	atomicLevel = zap.NewAtomicLevelAt(lvl)
 	pc := zap.NewProductionConfig()
 	pc.Level = atomicLevel
+	if len(outputs) > 0 {
+		pc.OutputPaths = outputs
+	}
 	var err error
 	L, err = pc.Build()
 	if err != nil {
@@ -89,8 +95,8 @@ func NewSugaredDevLogger() error {
 }
 
 // NewSugaredProdLogger creates a new Production Sugared logger.
-func NewSugaredProdLogger() error {
-	if err := NewProdLogger(); err != nil {
+func NewSugaredProdLogger(outputs ...string) error {
+	if err := NewProdLogger(outputs...); err != nil {
 		return err
 	}
 	S = L.Sugar()
@@ -98,8 +104,8 @@ func NewSugaredProdLogger() error {
 }
 
 // NewSugaredProdLoggerLevel creates a new Production Sugared logger at the specified logging level.
-func NewSugaredProdLoggerLevel(lvl zapcore.Level) error {
-	if err := NewProdLoggerLevel(lvl); err != nil {
+func NewSugaredProdLoggerLevel(lvl zapcore.Level, outputs ...string) error {
+	if err := NewProdLoggerLevel(lvl, outputs...); err != nil {
 		return err
 	}
 	S = L.Sugar()
@@ -212,14 +218,14 @@ func logMsg(level zapcore.Level, msg string) {
 }
 
 // SetupAppLogger creates a zap logger based on the application configuration options.
-func SetupAppLogger(appMode, configFile string, appDebug bool) error {
+func SetupAppLogger(appMode, configFile string, appDebug bool, logOutputs ...string) error {
 	var err error
 	switch strings.ToLower(appMode) {
 	case "prod":
 		if len(configFile) > 0 {
 			err = NewSugaredLoggerFromFile(configFile)
 		} else {
-			err = NewSugaredProdLogger()
+			err = NewSugaredProdLogger(logOutputs...)
 		}
 	default:
 		if len(configFile) > 0 {

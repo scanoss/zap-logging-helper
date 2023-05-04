@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Upcoming changes...
 
+## [0.2.0] - 2023-05-04
+### Added
+- Added support to configure log outputs (stdout/stderr/file)
+
 ## [0.1.0] - 2023-03-08
 ### Added
 - Added support for Streaming interceptor
@@ -28,3 +32,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.0.1]: https://github.com/scanoss/zap-logging-helper/compare/v0.0.0...v0.0.1
 [0.0.2]: https://github.com/scanoss/zap-logging-helper/compare/v0.0.1...v0.0.2
 [0.1.0]: https://github.com/scanoss/zap-logging-helper/compare/v0.0.2...v0.1.0
+[0.2.0]: https://github.com/scanoss/zap-logging-helper/compare/v0.1.0...v0.2.0

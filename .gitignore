@@ -21,3 +21,6 @@
 .vscode/
 *.wfp
 *-result.json
+
+# ignore logfiles
+*.log

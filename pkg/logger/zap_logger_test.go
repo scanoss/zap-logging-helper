@@ -58,6 +58,32 @@ func TestZapProdSugarLevel(t *testing.T) {
 	S.Info("Info test statement.")
 }
 
+func TestZapProdSugarLevelLog(t *testing.T) {
+	err := NewSugaredProdLoggerLevel(zap.DebugLevel, "stdout", "test.log")
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a sugared logger", err)
+	}
+	defer SyncZap()
+	S.Info("Info test statement.")
+}
+
+func TestZapDevLogs(t *testing.T) {
+	err := NewDevLogger("stdout")
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a sugared logger", err)
+	}
+	defer SyncZap()
+	L.Debug("Debug test statement.")
+}
+
+func TestZapProdApp(t *testing.T) {
+	err := SetupAppLogger("prod", "", false, "tmp.log")
+	if err != nil {
+		t.Errorf("Got unexpected error: %v", err)
+	}
+	L.Info("Printing messages to tmp.log")
+}
+
 func TestZapPro(t *testing.T) {
 	S = nil
 	err := NewProdLoggerLevel(zap.DebugLevel)
@@ -161,6 +187,11 @@ func TestSetupAppLogger(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected to get an error from non-existant config file")
 	}
+	err = SetupAppLogger("prod", "", false, "tmp.log")
+	if err != nil {
+		t.Errorf("Got unexpected error: %v", err)
+	}
+	L.Info("Printing messages to tmp.log")
 }
 
 func TestSetupAppDynamicLogging(t *testing.T) {
