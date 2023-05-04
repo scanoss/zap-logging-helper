@@ -81,7 +81,9 @@ func TestZapProdApp(t *testing.T) {
 	if err != nil {
 		t.Errorf("Got unexpected error: %v", err)
 	}
-	L.Info("Printing messages to tmp.log")
+	L.Info("Printing info messages to tmp.log")
+	L.Warn("Printing warn messages to tmp.log")
+	L.Error("Printing error messages to tmp.log")
 }
 
 func TestZapPro(t *testing.T) {
