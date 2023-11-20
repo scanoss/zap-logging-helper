@@ -31,13 +31,19 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
+	oteltrace "go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
-const RequestIDKey = "x-request-id"
-const ResponseIDKey = "x-response-id"
+const (
+	RequestIDKey  = "x-request-id"
+	ResponseIDKey = "x-response-id"
+	ReqLogKey     = "reqId"
+	SpanLogKey    = "span_id"
+	TraceLogKey   = "trace_id"
+)
 
 type requestIDKey struct{} // Used for storing the request ID in a context
 
@@ -103,9 +109,13 @@ func getSetRequestID(ctx context.Context) context.Context {
 			s.Debugf("Creating Request ID: %v", reqID)
 			ctx = metadata.NewIncomingContext(ctx, md) // Add the Request ID to the incoming metadata
 		}
-		ctxzap.AddFields(ctx, zap.String(RequestIDKey, reqID)) // Add Request ID to the logging
-		ctx = context.WithValue(ctx, requestIDKey{}, reqID)    // Add Request ID to current context
-		ctx = metadata.NewOutgoingContext(ctx, md)             // Add the incoming metadata to any outgoing requests
+		ctxzap.AddFields(ctx, zap.String(ReqLogKey, reqID)) // Add Request ID to the logging
+		if span := oteltrace.SpanContextFromContext(ctx); span.IsSampled() {
+			ctxzap.AddFields(ctx, zap.String(TraceLogKey, span.TraceID().String())) // Add Trace ID to the logging
+			ctxzap.AddFields(ctx, zap.String(SpanLogKey, span.SpanID().String()))   // Add Span ID to the logging
+		}
+		ctx = context.WithValue(ctx, requestIDKey{}, reqID) // Add Request ID to current context
+		ctx = metadata.NewOutgoingContext(ctx, md)          // Add the incoming metadata to any outgoing requests
 
 		header := metadata.New(map[string]string{ResponseIDKey: reqID}) // Set the Response ID
 		if err := grpc.SendHeader(ctx, header); err != nil {
