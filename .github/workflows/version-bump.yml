@@ -1,0 +1,38 @@
+name: Version Bump
+# Create the next available tag (based on commit comment)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        required: true
+        default: true
+        type: boolean
+        description: "Apply next tag, or simply check what it would be."
+
+jobs:
+  Tagging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
+      - name: Determine Tag Details
+        id: taggerDryRun
+        uses: anothrNick/github-tag-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          DRY_RUN: true
+      - name: Tag Details
+        run: |
+          echo "The next tag version will be: ${{ steps.taggerDryRun.outputs.new_tag }}"
+          echo "The current tag is: ${{ steps.taggerDryRun.outputs.tag }}"
+          echo "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"
+      - name: Run Tagging
+        if: ! ${{ inputs.dry_run }}
+        id: taggerApply
+        uses: anothrNick/github-tag-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
