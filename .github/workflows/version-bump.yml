@@ -8,7 +8,7 @@ on:
         required: true
         default: false
         type: boolean
-        description: "Apply next tag, or simply check what it would be (dry run)."
+        description: "Apply next tag (or Dry Run)"
 
 jobs:
   Tagging:
