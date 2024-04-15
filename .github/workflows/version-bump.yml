@@ -27,7 +27,6 @@ jobs:
       - name: Tag Details
         run: |
           echo "The next tag version will be: ${{ steps.taggerDryRun.outputs.new_tag }}"
-          echo "The current tag is: ${{ steps.taggerDryRun.outputs.tag }}"
           echo "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"
       - name: Run Tagging
         if: ${{ inputs.run_for_real }}
