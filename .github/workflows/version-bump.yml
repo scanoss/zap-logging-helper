@@ -6,7 +6,7 @@ on:
     inputs:
       run_for_real:
         required: true
-        default: true
+        default: false
         type: boolean
         description: "Apply next tag, or simply check what it would be (dry run)."
 
@@ -30,7 +30,7 @@ jobs:
           echo "The current tag is: ${{ steps.taggerDryRun.outputs.tag }}"
           echo "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"
       - name: Run Tagging
-        if: ! inputs.run_for_real
+        if: ${{ inputs.run_for_real }}
         id: taggerApply
         uses: anothrNick/github-tag-action@v1
         env:
