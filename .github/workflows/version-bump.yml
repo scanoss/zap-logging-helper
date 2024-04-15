@@ -9,6 +9,12 @@ on:
         default: false
         type: boolean
         description: "Apply next tag (or Dry Run)"
+      default_bump:
+        required: true
+        default: "minor"
+        type: choice
+        options: ['major', 'minor', 'patch', 'none']
+        description: "Default Version Bump"
 
 jobs:
   Tagging:
