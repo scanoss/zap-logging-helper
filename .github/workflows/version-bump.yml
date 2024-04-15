@@ -4,11 +4,11 @@ name: Version Bump
 on:
   workflow_dispatch:
     inputs:
-      dry_run:
+      run_for_real:
         required: true
         default: true
         type: boolean
-        description: "Apply next tag, or simply check what it would be."
+        description: "Apply next tag, or simply check what it would be (dry run)."
 
 jobs:
   Tagging:
@@ -30,7 +30,7 @@ jobs:
           echo "The current tag is: ${{ steps.taggerDryRun.outputs.tag }}"
           echo "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"
       - name: Run Tagging
-        if: ! ${{ inputs.dry_run }}
+        if: ! inputs.run_for_real
         id: taggerApply
         uses: anothrNick/github-tag-action@v1
         env:
