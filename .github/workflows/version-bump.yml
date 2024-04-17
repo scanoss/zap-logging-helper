@@ -16,18 +16,22 @@ on:
         options: ['major', 'minor', 'patch', 'none']
         description: "Default Version Bump"
 
+concurrency: production
+
 jobs:
   Tagging:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.SC_GH_TAG_TOKEN }}
         with:
           fetch-depth: '0'
       - name: Determine Tag Details
         id: taggerDryRun
         uses: anothrNick/github-tag-action@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SC_GH_TAG_TOKEN }}
           DEFAULT_BUMP: ${{ inputs.default_bump }}
           WITH_V: true
           DRY_RUN: true
@@ -40,6 +44,6 @@ jobs:
         id: taggerApply
         uses: anothrNick/github-tag-action@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SC_GH_TAG_TOKEN }}
           DEFAULT_BUMP: ${{ inputs.default_bump }}
           WITH_V: true
