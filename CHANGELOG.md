@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Upcoming changes...
 
+## [0.3.1] - 2024-08-19
+### Update
+- Upgraded to GO 1.22
+- Updated dependency versions
+
 ## [0.3.0] - 2023-11-20
 ### Added
 - Added Open Telemetry (OTEL) trace support
@@ -39,3 +44,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.1.0]: https://github.com/scanoss/zap-logging-helper/compare/v0.0.2...v0.1.0
 [0.2.0]: https://github.com/scanoss/zap-logging-helper/compare/v0.1.0...v0.2.0
 [0.3.0]: https://github.com/scanoss/zap-logging-helper/compare/v0.2.0...v0.3.0
+[0.3.1]: https://github.com/scanoss/zap-logging-helper/compare/v0.3.0...v0.3.1
