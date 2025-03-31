@@ -117,9 +117,9 @@ func getSetRequestID(ctx context.Context) context.Context {
 		ctx = context.WithValue(ctx, requestIDKey{}, reqID) // Add Request ID to current context
 		ctx = metadata.NewOutgoingContext(ctx, md)          // Add the incoming metadata to any outgoing requests
 
-		header := metadata.New(map[string]string{ResponseIDKey: reqID}) // Set the Response ID
-		if err := grpc.SendHeader(ctx, header); err != nil {
-			s.Debugf("Warning: Unable to set response header '%v' %v: %v", ResponseIDKey, reqID, err)
+		trailer := metadata.New(map[string]string{ResponseIDKey: reqID}) // Set the Response ID into trailer
+		if err := grpc.SetTrailer(ctx, trailer); err != nil {
+			s.Debugf("Warning: Unable to set response trailer '%v' %v: %v", ResponseIDKey, reqID, err)
 		}
 	}
 	return ctx
