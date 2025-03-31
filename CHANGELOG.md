@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.2] - 2025-03-31
 ### Added
 - Added 'x-response-id' to response trailer
+- Upgraded Go v1.24.x
+- Upgraded golangci-lint to v1.64.8
 
 ## [0.3.1] - 2024-08-19
 ### Update
